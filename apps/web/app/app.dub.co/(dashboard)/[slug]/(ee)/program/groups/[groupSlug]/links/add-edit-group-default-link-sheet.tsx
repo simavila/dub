@@ -14,7 +14,7 @@ import { RewardIconSquare } from "@/ui/partners/rewards/reward-icon-square";
 import { X } from "@/ui/shared/icons";
 import { Button, Input, Sheet } from "@dub/ui";
 import { Eye, Hyperlink } from "@dub/ui/icons";
-import { normalizeUrl, safeDecodeURIComponent } from "@dub/utils";
+import { isSameDestinationUrl, safeDecodeURIComponent } from "@dub/utils";
 import {
   Dispatch,
   PropsWithChildren,
@@ -90,8 +90,8 @@ function DefaultPartnerLinkSheetContent({
     if (!group || !defaultLinks) return;
 
     // Check if the link already exists
-    const existingLink = defaultLinks.find(
-      (link) => normalizeUrl(link.url) === normalizeUrl(data.url),
+    const existingLink = defaultLinks.find((link) =>
+      isSameDestinationUrl(link.url, data.url),
     );
 
     if (existingLink && existingLink.id !== link?.id) {
