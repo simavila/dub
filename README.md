@@ -71,7 +71,7 @@ We love our contributors! Here's how you can contribute:
 
 ### Common Local Development Issues
 
-- `The table <table-name> does not exist in the current database.` - Run `pnpm prisma:push` push the state of the Prisma schema file to the database without using migrations files.
+- `The table <table-name> does not exist in the current database.` - Run `pnpm prisma:push` to push the state of the Prisma schema file to the database without using migration files.
 - The project is not building correctly locally - verify your versions of `node` and `pnpm` match the recommended versions above. Delete all `node_modules`, `.next`, and `.turbo` directories in the `apps` and `packages` directory. You may now reinstall `node_modules` by running `pnpm install` and attempt to rebuild the project with `pnpm build`.
 
 ### Dev Seed Script
