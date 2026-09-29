@@ -1,0 +1,38 @@
+name: Typecheck
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: typecheck-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  utils:
+    name: Typecheck @dub/utils
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies (@dub/utils only)
+        run: pnpm install --frozen-lockfile --filter "@dub/utils..."
+
+      - name: Run tsc --noEmit
+        run: pnpm --filter "@dub/utils" check-types
