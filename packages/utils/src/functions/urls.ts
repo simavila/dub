@@ -211,6 +211,43 @@ export const normalizeUrl = (url: string): string => {
   }
 };
 
+const TRACKING_PARAM_PREFIXES = ["utm_", "mc_", "_hs"];
+const TRACKING_PARAMS = ["ref", "fbclid", "gclid", "msclkid", "ttclid"];
+
+const isTrackingParam = (key: string) => {
+  const k = key.toLowerCase();
+  return (
+    TRACKING_PARAMS.indexOf(k) !== -1 ||
+    TRACKING_PARAM_PREFIXES.some((prefix) => k.startsWith(prefix))
+  );
+};
+
+/**
+ * Normalizes a destination URL so it can be compared against other URLs.
+ * Unlike `normalizeUrl`, this keeps meaningful query params (sorted) and
+ * only drops tracking params, `www.`, trailing slashes and the hash.
+ */
+export const normalizeDestinationUrl = (url: string): string => {
+  const urlObj = getUrlObjFromString(url.trim());
+  if (!urlObj) return url.trim().toLowerCase();
+
+  const host = urlObj.host.toLowerCase().replace(/^www\./, "");
+  const path = urlObj.pathname.replace(/\/+$/, "");
+
+  const query = urlObj.search
+    .replace(/^\?/, "")
+    .split("&")
+    .filter((pair) => pair && !isTrackingParam(pair.split("=")[0]))
+    .sort()
+    .join("&");
+
+  // protocol is intentionally ignored: http://acme.com === https://acme.com
+  return `${host}${path}${query ? `?${query}` : ""}`;
+};
+
+export const isSameDestinationUrl = (a: string, b: string) =>
+  normalizeDestinationUrl(a) === normalizeDestinationUrl(b);
+
 export function buildUrl(
   baseUrl: string,
   params?: Record<string, string | number | boolean | null | undefined>,
