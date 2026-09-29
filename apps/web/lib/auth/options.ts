@@ -31,6 +31,7 @@ import {
   incrementLoginAttempts,
 } from "./lock-account";
 import { validatePassword } from "./password";
+import { isTokenIssuedBefore } from "./session-invalidation";
 import { SSO_LOGIN_PROGRAMS } from "./sso-login-programs";
 import { trackDubLead } from "./track-dub-lead";
 
@@ -542,7 +543,7 @@ export const authOptions: NextAuthOptions = {
         token.user = user;
       }
 
-      // refresh the user's data if they update their name / email
+      // refresh the user's data if they update their name / email / password
       if (trigger === "update") {
         const refreshedUser = await prisma.user.findUnique({
           where: {
@@ -556,14 +557,22 @@ export const authOptions: NextAuthOptions = {
             isMachine: true,
             defaultWorkspace: true,
             defaultPartnerId: true,
+            passwordChangedAt: true,
           },
         });
 
-        if (refreshedUser) {
-          token.user = refreshedUser;
-        } else {
+        if (!refreshedUser) {
           return {};
         }
+
+        const { passwordChangedAt, ...userData } = refreshedUser;
+
+        // reject sessions that were issued before the user's last password change
+        if (isTokenIssuedBefore(token, passwordChangedAt)) {
+          return {};
+        }
+
+        token.user = userData;
       }
 
       return token;
