@@ -14,7 +14,7 @@ import { RewardIconSquare } from "@/ui/partners/rewards/reward-icon-square";
 import { X } from "@/ui/shared/icons";
 import { Button, Input, Sheet } from "@dub/ui";
 import { Eye, Hyperlink } from "@dub/ui/icons";
-import { normalizeUrl, safeDecodeURIComponent } from "@dub/utils";
+import { canonicalizeUrl, safeDecodeURIComponent } from "@dub/utils";
 import {
   Dispatch,
   PropsWithChildren,
@@ -89,10 +89,12 @@ function DefaultPartnerLinkSheetContent({
   const onSubmit = async (data: FormData) => {
     if (!group || !defaultLinks) return;
 
-    // Check if the link already exists
-    const existingLink = defaultLinks.find(
-      (link) => normalizeUrl(link.url) === normalizeUrl(data.url),
-    );
+    // Check if a default link with the same destination already exists
+    // (ignoring www., trailing slashes, UTM params, click IDs, param order, etc.)
+    const canonicalUrl = canonicalizeUrl(data.url);
+    const existingLink = canonicalUrl
+      ? defaultLinks.find((link) => canonicalizeUrl(link.url) === canonicalUrl)
+      : undefined;
 
     if (existingLink && existingLink.id !== link?.id) {
       toast.error("A default link with this URL already exists.");
