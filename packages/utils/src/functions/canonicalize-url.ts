@@ -107,3 +107,18 @@ export function canonicalizeUrl(
 
   return `${protocol}//${hostname}${port}${pathname}${search}`;
 }
+
+/**
+ * Returns true if both URLs point to the same destination according to
+ * `canonicalizeUrl`. Unparseable URLs are never considered equivalent.
+ */
+export function areUrlsEquivalent(
+  a: string,
+  b: string,
+  options?: CanonicalizeUrlOptions,
+): boolean {
+  const canonicalA = canonicalizeUrl(a, options);
+  const canonicalB = canonicalizeUrl(b, options);
+
+  return canonicalA !== null && canonicalA === canonicalB;
+}

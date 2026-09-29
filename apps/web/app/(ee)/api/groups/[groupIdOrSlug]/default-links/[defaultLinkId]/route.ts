@@ -1,5 +1,6 @@
 import { updateProgramDomain } from "@/lib/api/domains/update-program-domain";
 import { DubApiError } from "@/lib/api/errors";
+import { throwIfDuplicateDefaultLink } from "@/lib/api/groups/throw-if-duplicate-default-link";
 import { getDefaultProgramIdOrThrow } from "@/lib/api/programs/get-default-program-id-or-throw";
 import { parseRequestBody } from "@/lib/api/utils";
 import { extractUtmParams } from "@/lib/api/utm/extract-utm-params";
@@ -80,6 +81,13 @@ export const PATCH = withWorkspace(
     if (url !== defaultLink.url) {
       try {
         const updatedDefaultLink = await prisma.$transaction(async (tx) => {
+          await throwIfDuplicateDefaultLink({
+            tx,
+            groupId: group.id,
+            url,
+            excludeDefaultLinkId: defaultLink.id,
+          });
+
           // if the group being updated is the default partner group,
           // also update the program's URL to the new default link destination URL
           if (group.slug === DEFAULT_PARTNER_GROUP.slug) {
@@ -121,6 +129,10 @@ export const PATCH = withWorkspace(
           PartnerGroupDefaultLinkSchema.parse(updatedDefaultLink),
         );
       } catch (error) {
+        if (error instanceof DubApiError) {
+          throw error;
+        }
+
         if (error.code === "P2002") {
           throw new DubApiError({
             code: "conflict",
