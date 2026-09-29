@@ -1,6 +1,7 @@
 export * from "./array-equal";
 export * from "./avatar";
 export * from "./camel-case";
+export * from "./canonicalize-url";
 export * from "./capitalize";
 export * from "./chunk";
 export * from "./cn";
