@@ -50,6 +50,7 @@ export const PATCH = withSession(async ({ req, session }) => {
       },
       data: {
         passwordHash: await hashPassword(newPassword),
+        passwordChangedAt: new Date(),
       },
     }),
 

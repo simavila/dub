@@ -21,6 +21,7 @@ model User {
   passwordHash         String?
   invalidLoginAttempts Int       @default(0)
   lockedAt             DateTime?
+  passwordChangedAt    DateTime? // sessions issued before this timestamp are rejected
 
   // user preferences
   defaultWorkspace String? // slug of the user's default workspace
