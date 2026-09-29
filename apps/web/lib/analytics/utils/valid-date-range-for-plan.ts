@@ -32,6 +32,7 @@ export const validDateRangeForPlan = ({
     (interval === "90d" ||
       interval === "1y" ||
       interval === "ytd" ||
+      interval === "last_quarter" ||
       (start && getDaysDifference(start, end) > 31))
   ) {
     return {

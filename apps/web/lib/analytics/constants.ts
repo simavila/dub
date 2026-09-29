@@ -7,6 +7,8 @@ export const DATE_RANGE_INTERVAL_PRESETS = [
   "mtd",
   "qtd",
   "ytd",
+  "last_month",
+  "last_quarter",
   "all",
 ] as const;
 
@@ -53,6 +55,16 @@ export const INTERVAL_DISPLAYS = [
     display: "Year to Date",
     value: "ytd",
     shortcut: "y",
+  },
+  {
+    display: "Last Month",
+    value: "last_month",
+    shortcut: "p",
+  },
+  {
+    display: "Last Quarter",
+    value: "last_quarter",
+    shortcut: "o",
   },
   {
     display: "All Time",

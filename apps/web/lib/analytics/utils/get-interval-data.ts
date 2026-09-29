@@ -1,6 +1,7 @@
 import { tz, TZDate } from "@date-fns/tz";
 import { DUB_FOUNDING_DATE } from "@dub/utils";
 import {
+  endOfQuarter,
   endOfToday,
   startOfMonth,
   startOfQuarter,
@@ -8,6 +9,7 @@ import {
   subDays,
   subHours,
   subMonths,
+  subQuarters,
 } from "date-fns";
 
 const INTERVAL_DATA: Record<
@@ -60,6 +62,22 @@ const INTERVAL_DATA: Record<
     endDate: endOfToday({ in: timezone ? tz(timezone) : undefined }),
     granularity: "month",
   }),
+  last_month: ({ timezone }) => {
+    const now = new TZDate(Date.now(), timezone);
+    return {
+      startDate: startOfMonth(subMonths(now, 1)),
+      endDate: subDays(startOfMonth(now), 1),
+      granularity: "day",
+    };
+  },
+  last_quarter: ({ timezone }) => {
+    const lastQuarter = subQuarters(new TZDate(Date.now(), timezone), 1);
+    return {
+      startDate: startOfQuarter(lastQuarter),
+      endDate: endOfQuarter(lastQuarter),
+      granularity: "day",
+    };
+  },
   all: ({ timezone }) => ({
     startDate: new TZDate(DUB_FOUNDING_DATE, timezone),
     endDate: endOfToday({ in: timezone ? tz(timezone) : undefined }),
