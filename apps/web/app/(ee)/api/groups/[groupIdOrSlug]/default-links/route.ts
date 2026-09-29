@@ -1,6 +1,7 @@
 import { createId } from "@/lib/api/create-id";
 import { DubApiError } from "@/lib/api/errors";
 import { getGroupOrThrow } from "@/lib/api/groups/get-group-or-throw";
+import { throwIfDuplicateDefaultLink } from "@/lib/api/groups/throw-if-duplicate-default-link";
 import { getDefaultProgramIdOrThrow } from "@/lib/api/programs/get-default-program-id-or-throw";
 import { parseRequestBody } from "@/lib/api/utils";
 import { extractUtmParams } from "@/lib/api/utm/extract-utm-params";
@@ -90,6 +91,12 @@ export const POST = withWorkspace(
           });
         }
 
+        await throwIfDuplicateDefaultLink({
+          tx,
+          groupId: group.id,
+          url,
+        });
+
         return await tx.partnerGroupDefaultLink.create({
           data: {
             id: createId({ prefix: "pgdl_" }),
@@ -123,6 +130,10 @@ export const POST = withWorkspace(
         },
       );
     } catch (error) {
+      if (error instanceof DubApiError) {
+        throw error;
+      }
+
       if (error.code === "P2002") {
         throw new DubApiError({
           code: "conflict",

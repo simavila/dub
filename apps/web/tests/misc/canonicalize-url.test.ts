@@ -1,4 +1,4 @@
-import { canonicalizeUrl } from "@dub/utils";
+import { areUrlsEquivalent, canonicalizeUrl } from "@dub/utils";
 import { describe, expect, it } from "vitest";
 
 describe("canonicalizeUrl", () => {
@@ -107,5 +107,37 @@ describe("canonicalizeUrl", () => {
 
     const canonical = variations.map((url) => canonicalizeUrl(url));
     expect(new Set(canonical).size).toBe(1);
+  });
+});
+
+describe("areUrlsEquivalent", () => {
+  it("returns true for URLs with the same canonical form", () => {
+    expect(
+      areUrlsEquivalent(
+        "https://acme.com/pricing",
+        "https://www.acme.com/pricing/?utm_source=partner",
+      ),
+    ).toBe(true);
+  });
+
+  it("returns false for URLs with different meaningful params", () => {
+    expect(
+      areUrlsEquivalent(
+        "https://acme.com/signup?plan=pro",
+        "https://acme.com/signup?plan=business",
+      ),
+    ).toBe(false);
+  });
+
+  it("respects options", () => {
+    expect(
+      areUrlsEquivalent("https://acme.com", "https://www.acme.com", {
+        ignoreWww: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("never treats unparseable URLs as equivalent", () => {
+    expect(areUrlsEquivalent("not a url", "not a url")).toBe(false);
   });
 });
